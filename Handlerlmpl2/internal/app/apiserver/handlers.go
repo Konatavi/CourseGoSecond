@@ -10,6 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	EquationGrab  models.EquationGrab
+	EquationSolve models.EquationSolve
+)
+
 type Message struct {
 	StatusCode int    `json:"status_code"`
 	Message    string `json:"message"`
@@ -326,5 +331,77 @@ func (api *APIServer) PutArticleById(writer http.ResponseWriter, req *http.Reque
 	}
 	writer.WriteHeader(201)
 	json.NewEncoder(writer).Encode(a)
+
+}
+
+func (api *APIServer) PostGrab(writer http.ResponseWriter, req *http.Request) {
+	initHeaders(writer)
+	api.logger.Info("Post Grab Register POST /api/v1/grab")
+	err := json.NewDecoder(req.Body).Decode(&EquationGrab)
+	if err != nil {
+		api.logger.Info("Invalid json recieved from client")
+		msg := Message{
+			StatusCode: 400,
+			Message:    "Provided json is invalid",
+			IsError:    true,
+		}
+
+		writer.WriteHeader(400)
+		json.NewEncoder(writer).Encode(msg)
+		return
+	}
+	writer.WriteHeader(201)
+	json.NewEncoder(writer).Encode(EquationGrab)
+	api.logger.Info(EquationGrab)
+
+}
+
+func (api *APIServer) GetSolve(writer http.ResponseWriter, req *http.Request) {
+	initHeaders(writer)
+	api.logger.Info("Get Solve GET /api/v1/solve")
+	EquationSolve.A = EquationGrab.A
+	EquationSolve.B = EquationGrab.B
+	EquationSolve.C = EquationGrab.C
+	/// найти решение
+	EquationSolve.Nroots = 0
+
+	a, b, c := EquationGrab.A, EquationGrab.B, EquationGrab.C
+
+	if a != 0 && b != 0 && c != 0 {
+		d := b*b - 4*a*c
+		if d > 0 {
+			EquationSolve.Nroots = 2
+			return
+		}
+		if d == 0 {
+			EquationSolve.Nroots = 1
+			return
+		}
+		if d < 0 {
+			EquationSolve.Nroots = 0
+		}
+	} else {
+		if a != 0 && b != 0 && c == 0 {
+			EquationSolve.Nroots = 2
+		} else if a != 0 && b == 0 && c != 0 {
+			if -c/a > 0 {
+				EquationSolve.Nroots = 2
+			} else {
+				EquationSolve.Nroots = 0
+			}
+		} else if a != 0 && b == 0 && c == 0 {
+			EquationSolve.Nroots = 1
+		} else if a == 0 && b != 0 && c == 0 {
+			EquationSolve.Nroots = 1
+		} else if a == 0 && b != 0 && c != 0 {
+			EquationSolve.Nroots = 1
+		} else {
+			EquationSolve.Nroots = 0
+		}
+	}
+
+	writer.WriteHeader(201)
+	json.NewEncoder(writer).Encode(EquationSolve)
+	api.logger.Info(EquationSolve)
 
 }
