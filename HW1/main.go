@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"HW1/utils"
-
+	"github.com/Konatavi/CourseGoSecond/HW1/utils"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
