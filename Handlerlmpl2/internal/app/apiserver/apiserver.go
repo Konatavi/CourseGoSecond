@@ -62,7 +62,8 @@ func (s *APIServer) configureRouter() {
 	s.router.HandleFunc(prefix+"/articles", s.PostArticle).Methods("POST")
 	s.router.HandleFunc(prefix+"/user/register", s.PostUserRegister).Methods("POST")
 	s.router.HandleFunc(prefix+"/articles"+"/{id}", s.PutArticleById).Methods("PUT")
-
+	s.router.HandleFunc(prefix+"/grab", s.PostGrab).Methods("POST")
+	s.router.HandleFunc(prefix+"/solve", s.GetSolve).Methods("GET")
 }
 
 //configureStore method
